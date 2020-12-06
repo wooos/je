@@ -1,0 +1,6 @@
+{
+  "details": {
+    "author": "wooos"
+  },
+  "version": "v1.0"
+}

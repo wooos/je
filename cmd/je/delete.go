@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/wooos/je/cmd/je/require"
@@ -14,6 +15,7 @@ import (
 
 type deleteOptions struct {
 	keys []string
+	dryRun bool
 }
 
 const deleteDesc = `
@@ -28,11 +30,14 @@ func newDeleteCmd(out io.Writer) *cobra.Command {
 		Short: "Delete the keys of json",
 		Long:  deleteDesc,
 		Args:  require.ExactArgs(1),
-		RunE:  o.runDeleteCmd,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return o.runDeleteCmd(out, cmd, args)
+		},
 	}
 
 	flags := cmd.Flags()
-	flags.StringArrayVar(&o.keys, "keys", []string{}, "specified keys of delete")
+	flags.StringArrayVar(&o.keys, "keys", []string{}, "specified keys of delete(can specify multiple or separate values with commas: key1,key2)")
+	flags.BoolVar(&o.dryRun, "dry-run", false, "simulate a delete")
 	cmd.MarkFlagRequired("keys")
 
 	cmd.SetOut(out)
@@ -40,7 +45,7 @@ func newDeleteCmd(out io.Writer) *cobra.Command {
 	return cmd
 }
 
-func (o *deleteOptions) runDeleteCmd(cmd *cobra.Command, args []string) (err error) {
+func (o *deleteOptions) runDeleteCmd(out io.Writer, cmd *cobra.Command, args []string) (err error) {
 	filename := args[0]
 
 	bytes, err := ioutil.ReadFile(filename)
@@ -56,8 +61,10 @@ func (o *deleteOptions) runDeleteCmd(cmd *cobra.Command, args []string) (err err
 
 	var newMap map[string]interface{}
 	for _, key := range o.keys {
-		if newMap, err = deleteMapKey(currentMap, strings.Split(key, ".")); err != nil {
-			return err
+		for _, k := range strings.Split(key, ",") {
+			if newMap, err = deleteMapKey(currentMap, strings.Split(k, ".")); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -66,6 +73,10 @@ func (o *deleteOptions) runDeleteCmd(cmd *cobra.Command, args []string) (err err
 		return err
 	}
 
+	if o.dryRun {
+		fmt.Fprintln(out, string(data))
+		return nil
+	}
 	if err := ioutil.WriteFile(filename, data, os.ModePerm); err != nil {
 		return err
 	}
@@ -73,6 +84,10 @@ func (o *deleteOptions) runDeleteCmd(cmd *cobra.Command, args []string) (err err
 }
 
 func deleteMapKey(current map[string]interface{}, key []string) (newMap map[string]interface{}, err error) {
+	if _, ok := current[key[0]]; !ok {
+		return nil, errors.Errorf("can not find specified key: %s", strings.Join(key, "."))
+	}
+
 	newMap = current
 	if len(key) >= 2 {
 		if reflect.TypeOf(current[key[0]]).String() == "map[string]interface {}" {
