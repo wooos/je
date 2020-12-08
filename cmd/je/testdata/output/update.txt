@@ -1,0 +1,8 @@
+{
+  "detail": {
+    "author": "wooos",
+    "email": "819844849@qq.com"
+  },
+  "name": "test",
+  "version": "v1.0.0"
+}
