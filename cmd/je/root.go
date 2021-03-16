@@ -9,7 +9,7 @@ import (
 func newRootCmd(out io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "je",
-		Short:        "Stream editor for json",
+		Short:        "Command line editor for json.",
 		Long:         "",
 		SilenceUsage: true,
 	}
