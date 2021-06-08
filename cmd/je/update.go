@@ -33,7 +33,7 @@ func newUpdateCmd(out io.Writer) *cobra.Command {
 	o := updateOptions{}
 	cmd := &cobra.Command{
 		Use:   "update [FILENAME]",
-		Short: "update a json file",
+		Short: "Update a json file",
 		Args:  require.ExactArgs(1),
 		Long:  updateDesc,
 		RunE: func(cmd *cobra.Command, args []string) error {

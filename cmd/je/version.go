@@ -34,7 +34,7 @@ func newVersionCmd(out io.Writer) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "version",
-		Short: "print current version information",
+		Short: "Print current version information",
 		Long:  versionDesc,
 		Args:  require.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
