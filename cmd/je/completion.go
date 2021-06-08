@@ -27,9 +27,9 @@ const listener = `
 const completionDesc = `
 Generate auto completions script for Goe for the specified shell (bash).
 This command can generate shell auto completions. e.g.
-    $ goe completion bash
+    $ je completion bash
 Can be sourced as such
-    $ source <(goe completion bash)
+    $ source <(je completion bash)
 `
 
 var completionShells = map[string]func(cmd *cobra.Command) error{
@@ -67,9 +67,9 @@ func runCompletionBash(cmd *cobra.Command) error {
 	err := cmd.Root().GenBashCompletion(os.Stdout)
 	bashrc := `
 if [[ $(type -t compopt) = "builtin" ]]; then
-    complete -o default -F __start_goe goe
+    complete -o default -F __start_je je
 else
-    complete -o default -o nospace -F __start_goe goe
+    complete -o default -o nospace -F __start_je je
 fi
 `
 	fmt.Printf("%s", bashrc)
